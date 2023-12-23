@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="shortcut icon" href="https://z3.ax1x.com/2021/11/13/IsrNZQ.png">
+	<title>云图床 - 免费图片上传, 专业图片外链, 免费公共图床床, CDN图床</title>
+
+    <link href="https://libs.baidu.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+	<div class="container">
+		<nav class="navbar navbar-default">
+		  <div class="container-fluid">
+		    <div class="navbar-header">
+		      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+		        <span class="sr-only">Menu</span>
+		        <span class="icon-bar"></span>
+		        <span class="icon-bar"></span>
+		        <span class="icon-bar"></span>
+		      </button>
+		      <a class="navbar-brand" href="/">图床</a>
+		    </div>
+
+		    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+		      <ul class="nav navbar-nav navbar-right">
+		        <li><a href="" target="_blank"></a></li>
+		      </ul>
+		    </div>
+		  </div>
+		</nav>
+
+		<div class="panel panel-default">
+		  <div class="panel-heading">多图上传</div>
+		  <div class="panel-body" align="center">
+		  	<div class="alert alert-success" role="alert" style="text-align: left;margin-bottom: 15px;">
+				<h4>上传多图方法：</h4>
+				<p>- 手机上选择多张图片即可</p>
+				<p>- 电脑上鼠标框选，或按住<code>Alt+鼠标右键单击</code></p>
+				<p>- 每次最多上传 <strong>10</strong> 张图片</p>
+				<p>- 每张图片不能大于<code>2M</code>，否则无法正确数据</p>
+			</div>
+		    <button class="btn btn-primary"> 选择图片 </button>
+			<button class="btn btn-success" id="upload_btn"> 立即上传 </button>
+			<form id="form" enctype="multipart/form-data">
+				<input type="file" name="file[]" multiple="multiple" id="files" accept="image/png,image/gif,image/jpg,image/jpeg" style="display: none;">
+			</form>
+			
+		  </div>
+		</div>
+
+		<!-- URL超链接版 -->
+		<div class="panel panel-default">
+			<div class="panel-heading" style="width: 100%;">上传结果(URL版)</div>
+			<div class="panel-body" style="margin: 5px">
+		    	<div class="imgs_src" style="background-color: #444a56;padding: 10px;width: 100%; color: #fff;word-wrap:break-word">
+		    		亲，您还没有上传图片哦！
+		    	</div>
+		  	</div>
+		</div>
+
+		<!-- 图片代码版 -->
+		<div class="panel panel-default">
+			<div class="panel-heading" style="width: 100%;">上传结果(图片版)
+				<button class="btn btn-danger" id="copyImgHtml" onclick="copyCodeAreaCt();">复制</button>
+			</div>
+			<div class="panel-body imgs_src_html" style="margin: 5px">
+		    	<textarea class="textarea" id="textarea" style="background-color: #444a56;padding: 10px;width: 100%; height: 250px; color: #fff;">亲，您还没有上传图片哦！</textarea>
+		  	</div>
+		</div>
+
+	</div>
+	
+
+
+	<!-- 闲鱼资源网 感谢各位老板保留版权 -->
+	<footer style="text-align: center;">
+		Copyright © 2021-2022 <a href="" target="_blank" title="" style="color:black;"></a>, All Rights Reserved
+	</footer>
+	<script src="https://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+	<script src="https://libs.baidu.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+	<script type="text/javascript">
+		$(function(){
+
+			//选择图片
+			$('.btn-primary').click(function(){
+				$('#files').trigger('click');
+			})
+
+			$('#files').change(function(){
+				var fileNum = $("#files")[0].files.length;
+				$('.btn-primary').text('上传文件('+fileNum+')');
+			})
+
+			$('#upload_btn').click(function(){
+              	$("#upload_btn").text("上传中...");
+				$('#upload_btn').attr('disabled', true);
+				var fileNum = $("#files")[0].files.length;
+				if(fileNum && fileNum <= 15){
+					$.ajax({
+				        url : "./api/picApi.php?type=multipart&num=multiple",
+				        type : 'POST',
+				        cache: false,
+				        data : new FormData($('#form')[0]),
+				        processData : false,                 
+				        contentType : false,
+				        async : false,
+				        success : function(data) {
+				            if(data){
+				            	var str = '';
+				            	var str2 = '';
+				            	$.each(data.msg, function(index, obj){
+				            		str += '<a href="'+ obj.url2+'" target="_blank" rel="noreferrer">'+obj.url2+'</a><br>';
+				            		str2 += '<p><a href="'+ obj.url2+'" target="_blank" title="'+obj.name +'"><img src="'+obj.url+'" alt="' + obj.name + '" width="'+obj.width+'" height="'+obj.height+'"></a></p>';
+				            	})
+				            	$(".imgs_src").html(str);
+				            	$(".textarea").text(str2);
+				            }
+				        }
+				    });
+				    $("#upload_btn").attr('disabled', false);
+				    $('#files').val('');
+					$('.btn-primary').text('上传文件(0)');
+
+				}
+				else{
+					alert("请选择上传文件，且上传文件数不超过15！");
+					$('#files').val('');
+					$('.btn-primary').text('上传文件(0)');
+					$("#upload_btn").attr('disabled', false);
+				}
+              $("#upload_btn").text("一键上传");
+				
+			})
+		})
+		function copyCodeAreaCt() {
+            $(".textarea").select();
+            document.execCommand("Copy"); // 执行浏览器复制命令
+            $("#copyImgHtml").text('已复制');
+            setTimeout(function() {
+                $("#copyImgHtml").text('复制');
+            },2000);
+        }
+
+	</script>
+</body>
+</html>
